@@ -1,0 +1,14 @@
+[
+    {
+        "testName": "valid login",
+        "username": "singhank",
+        "password": "Demoblaze@1989",
+        "expectedResult": "success"
+    },
+    {
+        "testName": "Invalid login",
+        "username": "singhank",
+        "password": "InvalidPassword",
+        "expectedResult": "failure"
+    }
+]
