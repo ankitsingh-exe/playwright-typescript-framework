@@ -1,9 +1,10 @@
 import {Page, Locator, errors} from '@playwright/test';
-import { HomePage } from "./HomePage.spec";
+import { HomePage } from "./HomePage";
+import { CartProduct } from '../model/cartProduct';
 
 export class ProductPage {
 
-    private readonly page: Page;
+    readonly page: Page;
     private readonly priceHeading: Locator;
     private readonly addToCartButton: Locator;
     private readonly homePage: HomePage;
@@ -19,12 +20,19 @@ export class ProductPage {
         return this.page.getByRole('link', { name: productName });
     }
 
-    async clickProductAndAddToCart(productName : string) {
-        await this.getProduct(productName).click();
-        console.log(`price of product ${productName} is ${await this.priceHeading.textContent()}`);
+    async clickAddToCart() {
         await this.addToCartButton.click();
-        await this.page.waitForTimeout(5000);
-        await this.homePage.navigateToHomePage();
+    }
+
+    async clickProductAndGetDetails(product : string) : Promise<CartProduct> {            
+        await this.getProduct(product).click();
+        const priceText = await this.priceHeading.textContent();
+        const price = priceText ? parseInt(priceText.replace('$', '')) : 0;
+        return {product, price};
+    }
+
+    async AddProductToCart() {                
+        await this.clickAddToCart();
     }
 
     async isHomePageDisplayed() {
