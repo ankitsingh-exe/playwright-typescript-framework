@@ -1,26 +1,23 @@
-import {test, expect} from "@playwright/test";
-import { LoginPage } from "../pages/LoginPage.spec";
+import {test, expect} from "../fixtures/baseTest";
 import { TestConfig } from "../test.config";
-
-let loginPage: LoginPage;
+import { env } from "../config/env";
 
 test.beforeEach("Launch URL before each test", async ({page}) => {
-    await page.goto(new TestConfig().appUrl);
-    loginPage = new LoginPage(page);
+    await page.goto(env.baseURL);
 });
 
-test("login with valid credentials @master @sanity @regression", async () => {
-    await loginPage.performLogin(new TestConfig().email, new TestConfig().password);
+test("login with valid credentials @master @sanity @regression", async ({loginPage}) => {
+    await loginPage.performLogin(env.username, env.password);
     expect(loginPage.isLoginSuccessful()).toBeTruthy();
 });
 
-test("login with in-valid credentials @master @sanity", async ({page}) => {
+test("login with in-valid credentials @master @sanity", async ({page, loginPage}) => {
     await Promise.all([
         page.waitForEvent('dialog').then(dialog => {
             expect(dialog.message()).toBe('User does not exist.');
             dialog.accept();
         }),
-        await loginPage.performLogin(new TestConfig().invalidEmail, new TestConfig().invalidPassword)        
+        await loginPage.performLogin(env.invalidUsername, env.invalidPassword)        
     ]);
 });
 

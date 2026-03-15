@@ -1,50 +1,19 @@
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "../pages/LoginPage";
-import { HomePage } from "../pages/HomePage";
-import { ProductPage } from "../pages/ProductPage";
-import { TestConfig } from "../test.config";
-import { CartPage } from "../pages/CartPage";
-import { DialogHandler } from "./DialogHandlerUtils";
-import { CartProduct } from "../model/cartProduct";
+import {test, expect} from "../fixtures/baseTest";
 
-let loginPage: LoginPage;
-let homePage: HomePage;
-let productPage: ProductPage;
-let cartPage: CartPage;
-let dialogHandler: DialogHandler;
+import { TestConfig } from "../test.config";
+import { DialogHandler } from "../utils/DialogHandlerUtils";
+import { CartProduct } from "../model/cartProduct";
+import { ProductPage } from "../pages/ProductPage";
+import { HomePage } from "../pages/HomePage";
+import { env } from "../config/env";
+
 let productToAdd = ['Samsung galaxy s6', 'Nexus 6'];
 
-test.beforeEach("Launch URL before each test", async ({ page }) => {
-    await page.goto(new TestConfig().appUrl);
-    loginPage = new LoginPage(page);
-    homePage = new HomePage(page);
-    productPage = new ProductPage(page);
-    cartPage = new CartPage(page);
-    await loginPage.performLogin(new TestConfig().email, new TestConfig().password);
-    await loginPage.isLoginSuccessful();
+test.beforeEach("Launch URL before each test", async ({ page, loginPage }) => {
+    await page.goto(env.baseURL);
 });
 
-
-async function addProductToCart(productArray: string[]): Promise<CartProduct[]> {
-
-    let addedProducts: CartProduct[] = [];
-    dialogHandler = new DialogHandler(productPage.page);
-
-    for (const product of productArray) {
-        let productPriceDetails = await productPage.clickProductAndGetDetails(product);
-        let productDetails = await dialogHandler.handleDialogFor(
-            () => productPage.clickAddToCart(),
-            { accept: true }
-        );
-        addedProducts.push(productPriceDetails);
-        await homePage.navigateToHomePage();
-    }
-
-    return addedProducts
-}
-
-
-test("Add Product to Cart and verify added details are same @productAdd", async () => {
+test("Add Product to Cart and verify added details are same @productAdd", async ({ homePage, productPage, cartPage, dialogHandler }) => {
     let addedProducts: CartProduct[] = [];
     let actualProducts: CartProduct[] = [];
 
@@ -52,9 +21,8 @@ test("Add Product to Cart and verify added details are same @productAdd", async 
         await homePage.navigateToHomePage();
         await homePage.navigateToPhonesPage();
 
-        addedProducts = await addProductToCart(productToAdd);
+        addedProducts = await addProductToCart(productToAdd, dialogHandler, productPage, homePage);
     });
-
 
     await test.step("Verify products in cart is same as what was added", async () => {
         actualProducts = await cartPage.getCartProducts();
@@ -80,3 +48,18 @@ test.afterEach("Reset URL after each test", async ({ page }) => {
 });
 
 
+async function addProductToCart(productArray: string[], dialogHandler: DialogHandler, productPage: ProductPage, homePage: HomePage): Promise<CartProduct[]> {
+    let addedProducts: CartProduct[] = [];
+    dialogHandler = new DialogHandler(productPage.page);
+
+    for (const product of productArray) {
+        let productPriceDetails = await productPage.clickProductAndGetDetails(product);
+        let productDetails = await dialogHandler.handleDialogFor(
+            () => productPage.clickAddToCart(),
+            { accept: true }
+        );
+        addedProducts.push(productPriceDetails);
+        await homePage.navigateToHomePage();
+    }
+    return addedProducts
+}

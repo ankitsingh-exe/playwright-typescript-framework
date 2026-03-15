@@ -8,7 +8,8 @@
     "test:all": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
-    "test:report": "allure generate allure-results --clean -o allure-report && allure open allure-report"  
+    "test:report": "allure generate allure-results --clean -o allure-report && allure open allure-report",
+    "test:qa:headed": "$env:TEST_ENV='qa'; npx playwright test TestLogin.spec.ts --headed"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@faker-js/faker": "^10.2.0",
     "csv-parse": "^6.1.0",
+    "dotenv": "^17.3.1",
     "xlsx": "^0.18.5"
   }
 }

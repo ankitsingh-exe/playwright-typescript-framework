@@ -143,6 +143,10 @@ Install Playwright browsers
 npx playwright install
 ```
 
+```
+npm install dotenv
+```
+
 ---
 
 # ▶ Running Tests
