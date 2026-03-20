@@ -23,7 +23,6 @@ test("login with in-valid credentials @master @sanity", async ({page, loginPage}
 
 
 test.afterEach("Reset URL after each test", async ({page}) => {
-    await page.waitForTimeout(2000);
     await page.close();
 });
 
